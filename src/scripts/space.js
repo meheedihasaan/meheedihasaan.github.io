@@ -43,7 +43,8 @@ addEventListener('load',measureSections);addEventListener('resize',measureSectio
 const PIN=parseFloat(new URLSearchParams(location.search).get('at'));
 function scrollIndex(){
   if(!isNaN(PIN))return PIN;
-  const mid=innerHeight*.5;let idx=-1+Math.min(1,scrollY/innerHeight);
+  const vh=document.getElementById('fg').clientHeight||innerHeight;   // stable on phones (100lvh), unlike innerHeight
+  const mid=vh*.5;let idx=-1+Math.min(1,scrollY/vh);
   secBox.forEach((b,i)=>{const top=b.top-scrollY;if(top<mid)idx=i+Math.min(1,(mid-top)/b.h)-.5});
   return idx;
 }
@@ -238,12 +239,15 @@ function initGL(){
 }
 if(gl){const later=()=>window.requestIdleCallback?requestIdleCallback(initGL,{timeout:1500}):setTimeout(initGL,200);
   document.readyState==='complete'?later():addEventListener('load',later)}
-function sizeSky(){if(!gl)return;sky.width=Math.round(innerWidth*glScale);sky.height=Math.round(innerHeight*glScale);gl.viewport(0,0,sky.width,sky.height)}
+function sizeSky(){if(!gl)return;sky.width=Math.round(w*glScale);sky.height=Math.round(hgt*glScale);gl.viewport(0,0,sky.width,sky.height)}
 
 // ---------- 2D layer: stars flying past, star systems with labelled planets, satellites at home ----------
 const fg=$('fg'),ctx=fg.getContext('2d');let w,hgt;
+document.fonts?.ready.then(()=>{dirty=true});   // redraw labels once the web fonts arrive
 const pfEl=$('pf');let pfRight=0;
-function size(){const d=devicePixelRatio||1;w=innerWidth;hgt=innerHeight;fg.width=w*d;fg.height=hgt*d;ctx.setTransform(d,0,0,d,0,0);sizeSky();pfRight=pfEl.getBoundingClientRect().right;dirty=true}
+// size from the canvas box (100lvh): on phones it stays put while the address bar slides, so the scene doesn't jump
+function size(){const d=devicePixelRatio||1,nw=fg.clientWidth||innerWidth,nh=fg.clientHeight||innerHeight;
+  if(nw===w&&nh===hgt&&fg.width===Math.floor(w*d))return;w=nw;hgt=nh;fg.width=w*d;fg.height=hgt*d;ctx.setTransform(d,0,0,d,0,0);sizeSky();pfRight=pfEl.getBoundingClientRect().right;dirty=true}
 const GAP=1600,F=640,rnd=(a,b)=>a+Math.random()*(b-a);
 const short=t=>t.length>30?t.slice(0,29)+'…':t;
 const NOTES={
@@ -262,19 +266,19 @@ const NOTES={
 function lines(it,vs){
   if(!it.wrap)return [it.v];
   if(it._lines&&it._lvs===vs)return it._lines;
-  ctx.font=`600 ${vs}px system-ui,sans-serif`;const max=vs*17,out=[];let cur='';
+  ctx.font=`600 ${vs}px 'Space Grotesk Variable',system-ui,sans-serif`;const max=vs*17,out=[];let cur='';
   for(const word of it.v.split(' · ')){const t=cur?cur+' · '+word:word;if(cur&&ctx.measureText(t).width>max){out.push(cur);cur=word}else cur=t}
   if(cur)out.push(cur);it._lvs=vs;return it._lines=out;
 }
 const labelH=(it,vs)=>lines(it,vs).length*(vs+5)+15;
 function label(it,lx,ey,al,vs){
   const ls=lines(it,vs),lh=vs+5;
-  ctx.font=`600 ${vs}px system-ui,sans-serif`;const vw=Math.max(...ls.map(l=>ctx.measureText(l).width));
-  ctx.font=`10px ui-monospace,monospace`;const kw=ctx.measureText(it.k.toUpperCase()).width+it.k.length*1.5;
+  ctx.font=`600 ${vs}px 'Space Grotesk Variable',system-ui,sans-serif`;const vw=Math.max(...ls.map(l=>ctx.measureText(l).width));
+  ctx.font=`10px 'JetBrains Mono Variable',ui-monospace,monospace`;const kw=ctx.measureText(it.k.toUpperCase()).width+it.k.length*1.5;
   const tw=Math.max(vw,kw),ky=ey+(ls.length-1)*lh;return {tw,draw:x=>{
     ctx.shadowBlur=0;ctx.fillStyle=`rgba(${TH.bg},${TH.bga*al})`;ctx.beginPath();(ctx.roundRect?ctx.roundRect(x-6,ey-vs+1,tw+12,ky-ey+vs+20,6):ctx.rect(x-6,ey-vs+1,tw+12,ky-ey+vs+20));ctx.fill();ctx.shadowBlur=8;
-    ctx.textAlign='left';ctx.fillStyle=`rgba(${TH.text},${al})`;ctx.font=`600 ${vs}px system-ui,sans-serif`;ls.forEach((l,i)=>ctx.fillText(l,x,ey+3+i*lh));
-    ctx.fillStyle=`rgba(${TH.acc},${.9*al})`;ctx.font=`10px ui-monospace,monospace`;
+    ctx.textAlign='left';ctx.fillStyle=`rgba(${TH.text},${al})`;ctx.font=`600 ${vs}px 'Space Grotesk Variable',system-ui,sans-serif`;ls.forEach((l,i)=>ctx.fillText(l,x,ey+3+i*lh));
+    ctx.fillStyle=`rgba(${TH.acc},${.9*al})`;ctx.font=`10px 'JetBrains Mono Variable',ui-monospace,monospace`;
     if('letterSpacing' in ctx)ctx.letterSpacing='1.5px';ctx.fillText(it.k.toUpperCase(),x,ky+17);if('letterSpacing' in ctx)ctx.letterSpacing='0px';}};
 }
 // labels in two columns beside a body; each anchor's label goes to the side it is on, sorted so lines don't cross;

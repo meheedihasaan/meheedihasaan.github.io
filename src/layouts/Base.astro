@@ -1,5 +1,7 @@
 ---
 import { profile } from '../data/profile.js';
+import '@fontsource-variable/space-grotesk/wght.css';
+import '@fontsource-variable/jetbrains-mono/wght.css';
 interface Props { title: string; description: string; image?: string; jsonld?: object }
 const { title, description, image = '/og.jpg', jsonld } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
@@ -22,6 +24,7 @@ const person = {
   <meta name="description" content={description} />
   <link rel="canonical" href={canonical} />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content={title} />
   <meta property="og:description" content={description} />
