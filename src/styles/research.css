@@ -32,6 +32,7 @@ figure.lead-fig{margin:28px 0 0}
 figure.lead-fig img{width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;border-radius:14px;border:1px solid var(--line);display:block;background:#0b1a2a}
 figcaption{font:12px ui-monospace,monospace;color:var(--muted);margin-top:8px}
 .layout{display:grid;grid-template-columns:200px 1fr;gap:48px;padding:40px 0 80px}
+.layout.solo{grid-template-columns:1fr;max-width:760px}
 .toc{position:sticky;top:78px;align-self:start;font:12px ui-monospace,monospace}
 .toc a{display:block;color:var(--muted);text-decoration:none;padding:5px 0 5px 12px;border-left:2px solid var(--line)}
 .toc a.on{color:var(--accent);border-color:var(--accent)}

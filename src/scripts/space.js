@@ -415,11 +415,12 @@ function drawShip(st,L,alpha,t){
   ctx.restore();
 }
 // where the ship is: above Earth at the start, flying with you through the sections, watching Earth during research, home at the end
+// phones: always in the clear band under the top bar, never down by the sound button and player
 function shipTarget(v,gx,gy,R,wide){
-  if(v.id==='hero')return wide?{x:.5*w,y:.25*hgt,s:40,yaw:1.1,pitch:.45,thrust:.3}:{x:.8*w,y:.07*hgt,s:17,yaw:1.1,pitch:.45,thrust:.3};
-  if(v.id==='interests')return wide?{x:.93*w,y:.17*hgt,s:12,yaw:1.3,pitch:-.4,thrust:.08}:{x:.9*w,y:.05*hgt,s:7,yaw:1.3,pitch:-.4,thrust:.08};
+  if(v.id==='hero')return wide?{x:.5*w,y:.25*hgt,s:40,yaw:1.1,pitch:.45,thrust:.3}:{x:.84*w,y:Math.max(110,.14*hgt),s:17,yaw:1.1,pitch:.45,thrust:.3};
+  if(v.id==='interests')return wide?{x:.93*w,y:.17*hgt,s:12,yaw:1.3,pitch:-.4,thrust:.08}:{x:.12*w,y:Math.max(110,.14*hgt),s:8,yaw:1.3,pitch:-.4,thrust:.08};
   if(v.id==='contact'){const a=simT*.22;return {x:gx+Math.cos(a)*R*1.45,y:gy+Math.sin(a)*R*.42,s:wide?17:9,yaw:1.35+Math.cos(a)*.5,pitch:-.25,thrust:.05,orbit:a}}
-  return wide?{x:.58*w,y:.8*hgt,s:23,yaw:.32,pitch:.34,thrust:.5}:{x:.84*w,y:.88*hgt,s:12,yaw:.32,pitch:.34,thrust:.5};
+  return wide?{x:.58*w,y:.8*hgt,s:23,yaw:.32,pitch:.34,thrust:.5}:{x:.18*w,y:Math.max(115,.15*hgt),s:12,yaw:.32,pitch:.34,thrust:.5};
 }
 const meteors=[];let nextMeteor=4;
 function drawMeteors(t,dt){
@@ -528,6 +529,7 @@ function draw(now,dt){
     const into=smooth(.16,.42,e)*(1-smooth(.5,.55,e)),mixv=(a,b,k)=>a+(b-a)*k;
     if(into>0){tg.x=mixv(tg.x,wx,into);tg.y=mixv(tg.y,wy,into);tg.s=mixv(tg.s,3,into);tg.yaw=mixv(tg.yaw,.1,into);tg.pitch=mixv(tg.pitch,.15,into);tg.thrust=mixv(tg.thrust,1,into)}
     ship.x+=(tg.x-mouse.x*14-ship.x)*ks;ship.y+=(tg.y-mouse.y*10-ship.y)*ks;ship.s=Math.exp(Math.log(ship.s)+(Math.log(tg.s)-Math.log(ship.s))*ks);
+    if(!wide)ship.y=Math.max(ship.y,92+ship.s*1.4);   // phones: never under the top bar and its fade
     ship.yaw+=(tg.yaw-ship.yaw)*ks;ship.pitch+=(tg.pitch-ship.pitch)*ks;
     const burn=tg.thrust>0?Math.min(.6,vel/40):0;ship.thrust+=(tg.thrust+burn-ship.thrust)*Math.min(1,dt/1000*4);
     if(!eco)ship.spin+=dt/1000*.35;
@@ -592,9 +594,17 @@ function synth(play){
     verb.buffer=buf;const wet=ac.createGain();wet.gain.value=.55;bus.connect(verb).connect(wet).connect(ac.destination);bus.connect(ac.destination);
     let next=ac.currentTime+.1,kk=0;setInterval(()=>{while(next<ac.currentTime+3){CHORDS[kk%CHORDS.length].forEach((f,i)=>organ(f,next,10,i<2?.09:.05));next+=8;kk++}},500)}
   ac.resume();bus.gain.cancelScheduledValues(ac.currentTime);bus.gain.setValueAtTime(bus.gain.value,ac.currentTime);bus.gain.linearRampToValueAtTime(play?.5:0,ac.currentTime+(play?3:.8));
+  if(!play)setTimeout(()=>{if(!on)ac.suspend()},900);   // silent and idle while off
+}
+// the button opens the player, then hides and shows it; hiding keeps it loaded, so the music keeps playing; ✕ stops it
+let player=0;   // 0 closed, 1 shown, 2 hidden but loaded
+function soundUI(){
+  const b=$('snd');b.classList.toggle('on',on||player>0);b.setAttribute('aria-pressed',on||player>0);
+  b.textContent=on?'♪ sound on':['♪ sound','♪ hide player','♪ show player'][player];$('yt').classList.toggle('show',player===1);
 }
 $('snd').onclick=()=>{
-  on=!on;$('snd').classList.toggle('on',on);$('snd').textContent=on?'♪ close player':'♪ sound';
-  if(!navigator.onLine){synth(on);return}
-  $('yt').classList.toggle('show',on);$('amp').src=on?AUDIOMACK:'about:blank';
+  if(player===0&&(on||!navigator.onLine)){on=!on;synth(on);soundUI();return}   // offline: the organ piece
+  if(player===0){$('amp').src=AUDIOMACK;player=1}else player=player===1?2:1;
+  soundUI();
 };
+$('ytx').onclick=()=>{$('amp').src='about:blank';player=0;soundUI()};

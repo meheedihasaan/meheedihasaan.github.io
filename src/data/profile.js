@@ -11,6 +11,7 @@ export const profile = {
   orcid: '',
   links: {
     email: 'mehedihasan111941@gmail.com',
+    phone: '+880 1717-397402',
     github: 'https://github.com/meheedihasaan',
     linkedin: 'https://www.linkedin.com/in/meheedihasaan',
     medium: 'https://medium.com/@meheedihasaan',
@@ -20,8 +21,8 @@ export const profile = {
   },
   news: [
     { date: 'Nov 2026', text: 'Joined IAR, Manarat International University as a Research Engineer.', isNew: true },
-    { date: '2025', text: 'Promoted to Software Engineer at Dhrubok Infotech Services.' },
-    { date: '2023', text: 'Promoted from Trainee to Junior Software Engineer in 3 months.' },
+    { date: 'Jul 2025', text: 'Promoted to Software Engineer at Dhrubok Infotech Services.' },
+    { date: 'Jul 2023', text: 'Promoted from Trainee to Junior Software Engineer in 3 months.' },
   ],
   stats: [
     { n: 3, suffix: '.5+', label: 'years engineering' },

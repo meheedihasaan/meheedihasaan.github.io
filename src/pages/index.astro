@@ -18,13 +18,13 @@ const [first, ...rest] = P.name.split(' ');
 // order of the journey; the space scene, trajectory bar and HUD follow these ids
 const sections = [
   ['news', 'news', 'Latest'], ['about', 'about', 'About'], ['interests', 'research interests', 'What I work on'],
-  ['publications', 'publications', 'Papers'], ['research', 'research projects', 'Research'], ['work', 'engineering work', "Systems I've built"],
-  ['writing', 'writing', 'Writing'], ['experience', 'experience', 'Experience'], ['skills', 'skills', 'Toolbox'],
+  ['research', 'research projects', 'Research'], ['experience', 'experience', 'Experience'], ['work', 'engineering work', "Systems I've built"],
+  ['skills', 'skills', 'Toolbox'], ['publications', 'publications', 'Papers'], ['writing', 'writing', 'Writing'],
   ['awards', 'awards', 'Competitive programming'], ['contact', 'contact', 'Collaborate?'],
 ];
 const head = (i) => ({ n: String(i).padStart(2, '0'), ly: (1600 * (i + 1)).toLocaleString('en-US') });
 const contacts = [
-  ['email', L.email, 'mailto:' + L.email], ['github', 'github.com/meheedihasaan', L.github], ['linkedin', 'linkedin.com/in/meheedihasaan', L.linkedin],
+  ['email', L.email, 'mailto:' + L.email], L.phone && ['phone', L.phone, 'tel:' + L.phone.replace(/[^+0-9]/g, '')], ['github', 'github.com/meheedihasaan', L.github], ['linkedin', 'linkedin.com/in/meheedihasaan', L.linkedin],
   ['medium', 'medium.com/@meheedihasaan', L.medium], ['leetcode', 'leetcode.com/meheedihasaan', L.leetcode],
   P.orcid && ['orcid', P.orcid, `https://orcid.org/${P.orcid}`], L.scholar && ['scholar', 'Google Scholar →', L.scholar], L.cv && ['cv', 'Download PDF →', L.cv],
 ].filter(Boolean);
@@ -47,7 +47,7 @@ const spaceData = {
   </div>
   <nav id="traj" aria-label="Sections"><div class="line"></div><div class="fill" id="fill"></div><div id="ship"></div></nav>
   <div id="ctl"><button id="theme">◑ light</button><button id="eco">◐ eco mode</button><button id="snd">♪ sound</button></div>
-  <div id="yt"><div class="frame"><iframe id="amp" title="Interstellar Main Theme (Audiomack)" scrolling="no" allow="autoplay"></iframe></div><span>press play · via Audiomack</span></div>
+  <div id="yt"><div class="frame"><iframe id="amp" title="Interstellar Main Theme (Audiomack)" scrolling="no" allow="autoplay"></iframe></div><span>Interstellar theme · via Audiomack<button id="ytx" aria-label="Stop the music and close the player">✕</button></span></div>
 
   <header id="hero">
     <small>{P.role}</small>
@@ -107,7 +107,7 @@ const spaceData = {
             <span class={`pf-status pf-${p.data.status}`}>{p.data.statusLabel}{p.data.example && ' · example'}</span>
             <h3><a href={`/research/${p.id}/`}>{p.data.title} →</a></h3>
             <p>{p.data.summary}</p>
-            <div class="pf-bar"><i style={`--w:${p.data.progress}%`}></i></div>
+            {p.data.progress > 0 && <div class="pf-bar"><i style={`--w:${p.data.progress}%`}></i></div>}
           </div>))}
         </div>}
 

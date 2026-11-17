@@ -43,8 +43,8 @@ const others = (await getCollection('projects')).filter((p) => p.id !== project.
       </figure>}
     </section>
 
-    <div class="layout">
-      <nav class="toc" aria-label="On this page">{toc.map(([id, t]) => <a href={`#${id}`}>{t}</a>)}</nav>
+    <div class={`layout${toc.length ? '' : ' solo'}`}>
+      {toc.length > 0 && <nav class="toc" aria-label="On this page">{toc.map(([id, t]) => <a href={`#${id}`}>{t}</a>)}</nav>}
       <article>
         {d.glance.length > 0 && <section id="overview"><h2><small>{num('overview')}</small>At a glance</h2>
           <div class="tiles">{d.glance.map((g) => <div class="tile"><b>{g.value}</b><span>{g.label}</span></div>)}</div>
