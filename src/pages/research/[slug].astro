@@ -1,0 +1,104 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection, render } from 'astro:content';
+import { profile } from '../../data/profile.js';
+import '../../styles/research.css';
+
+export async function getStaticPaths() {
+  return (await getCollection('projects')).map((p) => ({ params: { slug: p.id }, props: { project: p } }));
+}
+const { project } = Astro.props;
+const d = project.data;
+const { Content, headings } = await render(project);
+// contents: the structured parts around the Markdown story, in reading order
+const toc = [
+  d.glance.length && ['overview', 'At a glance'],
+  ...headings.filter((h) => h.depth === 2).map((h) => [h.slug, h.text]),
+  d.chart && ['results', 'Results'], d.footprint.length && ['footprint', 'Footprint'], d.outputs.length && ['outputs', 'Outputs'],
+  d.people.length && ['people', 'People'], d.timeline.length && ['timeline', 'Timeline'], d.cite && ['cite', 'Cite this project'],
+].filter(Boolean);
+const num = (id) => String(toc.findIndex(([t]) => t === id) + 1).padStart(2, '0');
+const others = (await getCollection('projects')).filter((p) => p.id !== project.id);
+---
+<Base title={`${d.title} · ${profile.name}`} description={d.summary} image={d.image?.src}>
+  <header class="top"><div class="wrap">
+    <a href="/#research">← <b>{profile.name}</b> · Research</a>
+    <button class="btn" id="theme">◑ light</button>
+  </div></header>
+
+  <main class="wrap">
+    {d.example && <p class="note">Example layout. The project, numbers, people and dates on this page are placeholders to show the structure; replace them with the real project.</p>}
+    <section class="hero">
+      <div class="chips"><span class={`chip${d.status === 'ongoing' ? ' live' : ''}`}>{d.statusLabel}</span>{d.areas.map((a) => <span class="chip">{a}</span>)}</div>
+      <h1>{d.title}</h1>
+      <p class="lead">{d.summary}</p>
+      {d.meta.length > 0 && <div class="meta">{d.meta.map((m) => <div><small>{m.label}</small><span>{m.value}</span></div>)}</div>}
+      <div class="links">
+        {d.links.map((l) => l.url ? <a class="btn" href={l.url}>{l.label}</a> : <span class="btn" aria-disabled="true">{l.label}</span>)}
+        {d.cite && <a class="btn" href="#cite">Cite</a>}
+      </div>
+      {d.image && <figure class="lead-fig">
+        <img src={d.image.src} srcset={d.image.small ? `${d.image.small} 640w, ${d.image.src} 1200w` : undefined} sizes="(max-width:1120px) calc(100vw - 48px), 1072px" width="1200" height="675" alt={d.image.alt} loading="eager" decoding="async" />
+        {d.image.caption && <figcaption>{d.image.caption}</figcaption>}
+      </figure>}
+    </section>
+
+    <div class="layout">
+      <nav class="toc" aria-label="On this page">{toc.map(([id, t]) => <a href={`#${id}`}>{t}</a>)}</nav>
+      <article>
+        {d.glance.length > 0 && <section id="overview"><h2><small>{num('overview')}</small>At a glance</h2>
+          <div class="tiles">{d.glance.map((g) => <div class="tile"><b>{g.value}</b><span>{g.label}</span></div>)}</div>
+        </section>}
+
+        <div class="md"><Content /></div>
+
+        {d.chart && <section id="results"><h2><small>{num('results')}</small>Results</h2>
+          <div class="chart" id="energyChart" data-rows={JSON.stringify(d.chart.rows)}>
+            <h3>{d.chart.title}</h3>
+            <div class="sub">{d.chart.unit}{d.chart.note && ` · ${d.chart.note}`}</div>
+            <svg id="bars" role="img" aria-label={`Bar chart: ${d.chart.title}. Values are listed in the table view.`}></svg>
+            <div class="tools"><span>Hover a bar for details</span><button class="btn" id="tableToggle" aria-expanded="false">Show table</button></div>
+            <div id="chartTable" hidden>
+              <table><thead><tr><th>Variant</th><th class="num">{d.chart.title}</th></tr></thead>
+                <tbody>{d.chart.rows.map((r) => <tr><td>{r.name}</td><td class="num">{r.value.toFixed(1)}</td></tr>)}</tbody></table>
+            </div>
+            <div class="tt" id="tt" role="status"></div>
+          </div>
+          {d.chart.rows.some((r) => r.accuracy) && <table>
+            <thead><tr><th>Variant</th><th class="num">Accuracy</th><th class="num">Size</th><th class="num">Latency</th></tr></thead>
+            <tbody>{d.chart.rows.map((r) => <tr><td>{r.highlight ? <b>{r.name}</b> : r.name}</td><td class="num">{r.accuracy}</td><td class="num">{r.size}</td><td class="num">{r.latency}</td></tr>)}</tbody>
+          </table>}
+        </section>}
+
+        {d.footprint.length > 0 && <section id="footprint"><h2><small>{num('footprint')}</small>Footprint</h2>
+          <p>Green AI work reports its own cost. This is what training the final model cost.</p>
+          <div class="tiles">{d.footprint.map((g) => <div class="tile"><b>{g.value}</b><span>{g.label}</span></div>)}</div>
+        </section>}
+
+        {d.outputs.length > 0 && <section id="outputs"><h2><small>{num('outputs')}</small>Outputs</h2>
+          <div class="outs">{d.outputs.map((o) => <div class="out"><div><b>{o.title}</b><span>{o.note}</span></div>{o.url ? <a class="btn" href={o.url}>{o.label}</a> : <span class="btn" aria-disabled="true">{o.label}</span>}</div>)}</div>
+        </section>}
+
+        {d.people.length > 0 && <section id="people"><h2><small>{num('people')}</small>People</h2>
+          <div class="people">{d.people.map((p) => <div class="person"><b>{p.name}</b><span>{p.role}</span></div>)}</div>
+        </section>}
+
+        {d.timeline.length > 0 && <section id="timeline"><h2><small>{num('timeline')}</small>Timeline</h2>
+          <ol class="tl">{d.timeline.map((t) => <li class={t.state}><span class="d">{t.date}</span><span class="dot"></span><span>{t.text}</span></li>)}</ol>
+        </section>}
+
+        {d.cite && <section id="cite"><h2><small>{num('cite')}</small>Cite this project</h2>
+          <pre id="bib">{d.cite.trim()}</pre>
+          <button class="btn" id="copyBib" style="margin-top:10px">Copy BibTeX</button>
+        </section>}
+
+        {others.length > 0 && <section><h2>More research</h2>
+          <div class="outs">{others.map((p) => <div class="out"><div><b>{p.data.title}</b><span>{p.data.statusLabel}</span></div><a class="btn" href={`/research/${p.id}/`}>Read</a></div>)}</div>
+        </section>}
+      </article>
+    </div>
+  </main>
+
+  <footer><div class="wrap"><div id="fp">Measuring this visit…</div><div>No 3D, no web fonts. <a href="/">← Back to the main page</a></div></div></footer>
+  <script src="../../scripts/research.js"></script>
+</Base>

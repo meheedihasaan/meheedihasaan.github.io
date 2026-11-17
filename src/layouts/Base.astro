@@ -1,0 +1,44 @@
+---
+import { profile } from '../data/profile.js';
+interface Props { title: string; description: string; image?: string; jsonld?: object }
+const { title, description, image = '/og.jpg', jsonld } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const person = {
+  '@context': 'https://schema.org', '@type': 'Person', name: profile.name,
+  jobTitle: ['Research Engineer', 'Software Engineer'],
+  affiliation: [{ '@type': 'Organization', name: 'IAR, Manarat International University' }, { '@type': 'Organization', name: 'Dhrubok Infotech Services Ltd' }],
+  knowsAbout: profile.interests.map((i) => i.title),
+  address: { '@type': 'PostalAddress', addressLocality: 'Dhaka', addressCountry: 'BD' },
+  url: Astro.site?.href,
+  sameAs: [profile.links.github, profile.links.linkedin, profile.links.medium, profile.orcid && `https://orcid.org/${profile.orcid}`, profile.links.scholar].filter(Boolean),
+};
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <link rel="canonical" href={canonical} />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={canonical} />
+  <meta property="og:image" content={new URL(image, Astro.site)} />
+  <meta property="og:image:width" content="1200" /><meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Mehedi Hasan, Research Engineer and Software Engineer, beside a view of Earth from orbit" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="theme-color" content="#000000" />
+  <!-- set the theme before the first paint, so there is no flash -->
+  <script is:inline>
+    try{const s=localStorage.getItem('theme');document.documentElement.dataset.theme=s||(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark')}catch(e){}
+  </script>
+  <script type="application/ld+json" set:html={JSON.stringify(jsonld ?? person)} />
+  <slot name="head" />
+</head>
+<body>
+  <slot />
+</body>
+</html>

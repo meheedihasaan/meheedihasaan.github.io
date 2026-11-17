@@ -1,0 +1,152 @@
+---
+import Base from '../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+import { profile, earthFacts } from '../data/profile.js';
+import { getPosts, mediumProfile } from '../lib/medium.js';
+import { getPublications } from '../lib/bibtex.js';
+import { getCitations } from '../lib/openalex.js';
+import '../styles/global.css';
+
+const P = profile, L = P.links;
+const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+const posts = await getPosts();
+const pubs = getPublications();
+const cites = (P.orcid || pubs.some((p) => p.doi)) ? await getCitations(P.orcid, pubs) : null;
+const month = (s) => new Date(s + 'T00:00:00Z').toLocaleDateString('en-GB', { month: 'short', year: 'numeric', timeZone: 'UTC' });
+const [first, ...rest] = P.name.split(' ');
+
+// order of the journey; the space scene, trajectory bar and HUD follow these ids
+const sections = [
+  ['news', 'news', 'Latest'], ['about', 'about', 'About'], ['interests', 'research interests', 'What I work on'],
+  ['publications', 'publications', 'Papers'], ['research', 'research projects', 'Research'], ['work', 'engineering work', "Systems I've built"],
+  ['writing', 'writing', 'Writing'], ['experience', 'experience', 'Experience'], ['skills', 'skills', 'Toolbox'],
+  ['awards', 'awards', 'Competitive programming'], ['contact', 'contact', 'Collaborate?'],
+];
+const head = (i) => ({ n: String(i).padStart(2, '0'), ly: (1600 * (i + 1)).toLocaleString('en-US') });
+const contacts = [
+  ['email', L.email, 'mailto:' + L.email], ['github', 'github.com/meheedihasaan', L.github], ['linkedin', 'linkedin.com/in/meheedihasaan', L.linkedin],
+  ['medium', 'medium.com/@meheedihasaan', L.medium], ['leetcode', 'leetcode.com/meheedihasaan', L.leetcode],
+  P.orcid && ['orcid', P.orcid, `https://orcid.org/${P.orcid}`], L.scholar && ['scholar', 'Google Scholar →', L.scholar], L.cv && ['cv', 'Download PDF →', L.cv],
+].filter(Boolean);
+
+// data for the space scene, in the shapes its labels expect
+const spaceData = {
+  name: P.name, links: L, interests: P.interests,
+  news: P.news.map((n) => [n.date, n.text]), stats: P.stats,
+  pubs: pubs.map((p) => ({ venue: p.venue || p.kind, y: p.year, type: p.kind })),
+  research: projects.map((p) => ({ title: p.data.title, status: p.data.statusLabel })),
+  writing: posts.map((p) => ({ title: p.title, date: p.date })),
+  work: P.work, experience: P.experience, skills: P.skills, awards: P.awards.map((a) => [a.place, a.text]),
+};
+---
+<Base title={`${P.name} · Research Engineer & Software Engineer`} description={`${P.name}, Research Engineer at IAR, Manarat International University, working on Green AI and AI for agriculture, climate change and environmental science, and in parallel a software engineer.`}>
+  <canvas id="sky" aria-hidden="true"></canvas><canvas id="fg" aria-hidden="true"></canvas>
+  <div id="hud" aria-hidden="true">
+    <div>Mission · <b>M. Hasan</b><br /><span class="opt">Sector <b id="sec">earth orbit</b> · </span><b id="dist">0</b> ly from Earth</div>
+    <div class="r">CO₂ <b>{earthFacts.co2.value}</b><span class="opt"> · {earthFacts.co2.when}</span><br /><span class="opt">Global temp </span><b class="hot">{earthFacts.temp.value}</b><span class="opt"> · {earthFacts.temp.when}</span></div>
+  </div>
+  <nav id="traj" aria-label="Sections"><div class="line"></div><div class="fill" id="fill"></div><div id="ship"></div></nav>
+  <div id="ctl"><button id="theme">◑ light</button><button id="eco">◐ eco mode</button><button id="snd">♪ sound</button></div>
+  <div id="yt"><div class="frame"><iframe id="amp" title="Interstellar Main Theme (Audiomack)" scrolling="no" allow="autoplay"></iframe></div><span>press play · via Audiomack</span></div>
+
+  <header id="hero">
+    <small>{P.role}</small>
+    <h1><b>{first}</b><br />{rest.join(' ')}</h1>
+    <p>{P.bio}</p>
+    <div class="focus">{P.interests.map((i) => <span>{i.title}</span>)}</div>
+  </header>
+
+  <main class="pf" id="pf">
+    {sections.map(([id, label, title], i) => (
+      <section class="pf-section pf-reveal" id={id}>
+        <div class="pf-head">
+          {id === 'interests' ? <div class="coord">LOOKING BACK AT <b>EARTH</b></div> : <div class="coord">SECTOR <b>{head(i).n}</b> · {head(i).ly} LY</div>}
+          <small class="pf-k">{label}</small><h2>{title}</h2>
+        </div>
+
+        {id === 'news' && <div class="pf-rows">{P.news.map((n) => <div><span class="pf-date">{n.date}</span><span class={n.isNew ? 'pf-new' : undefined}>{n.text}</span></div>)}</div>}
+
+        {id === 'about' && <>
+          <p class="pf-lead">{P.about}</p>
+          <div class="pf-stats">
+            {P.stats.map((s) => <div class="pf-stat"><b><span data-count={s.n}>{s.n}</span>{s.suffix}</b><span>{s.label}</span></div>)}
+            {cites?.author && <div class="pf-stat"><b>{cites.author.citations}</b><span>citations (OpenAlex)</span></div>}
+          </div>
+        </>}
+
+        {id === 'interests' && <div class="story" id="story">
+          <div class="st-top swap"><span><b id="stN">01</b> / {String(P.interests.length).padStart(2, '0')}</span><span id="stR"></span></div>
+          <div class="swap"><h3 id="stT">{P.interests[0].title}</h3><p id="stD">{P.interests[0].text}</p><div class="pf-tags" id="stG"></div><div class="lg" id="stL"></div></div>
+          <div class="st-steps">{P.interests.map(() => <i></i>)}</div>
+        </div>}
+
+        {id === 'publications' && (pubs.length ? <>
+          <div class="pf-filters"><button class="on" data-f="all">all</button><button data-f="journal">journal</button><button data-f="conference">conference</button><button data-f="preprint">preprint</button><input placeholder="search title, author, venue…" aria-label="Search papers" /></div>
+          <div class="pf-pubs">{pubs.map((p) => (
+            <div class="pf-pub" data-kind={p.kind} data-text={`${p.title} ${p.authors.map((a) => a.name).join(' ')} ${p.venue}`.toLowerCase()}>
+              <div class="pf-date">{p.year}</div>
+              <div>
+                <span class="pf-venue">{p.venue || p.kind}</span><span class="pf-type">{p.kind}</span>
+                <h3>{p.url ? <a href={p.url}>{p.title}</a> : p.title}</h3>
+                <div class="pf-au">{p.authors.map((a, k) => <>{k > 0 && ', '}{a.me ? <b>{a.name}</b> : a.name}</>)}</div>
+                <div class="pf-acts">
+                  {p.pdf && <a href={p.pdf}>PDF</a>}{p.code && <a href={p.code}>Code</a>}
+                  <button data-a="bib">BibTeX</button><button data-a="copy">Copy cite</button>
+                  {cites?.perPaper[p.key] != null && <span class="pf-type">Cited by {cites.perPaper[p.key]}</span>}
+                </div>
+                <pre>{p.raw}</pre>
+              </div>
+            </div>))}
+          </div>
+          <p class="pf-none">No papers match.</p>
+          {cites && <p class="pf-note">Citation counts from OpenAlex, updated {cites.date}.</p>}
+        </> : <p class="pf-lead">Ongoing</p>)}
+
+        {id === 'research' && <div class="pf-cards pf-two">{projects.map((p) => (
+          <div class={`pf-card${p.data.example ? ' is-example' : ''}`}>
+            <span class={`pf-status pf-${p.data.status}`}>{p.data.statusLabel}{p.data.example && ' · example'}</span>
+            <h3><a href={`/research/${p.id}/`}>{p.data.title} →</a></h3>
+            <p>{p.data.summary}</p>
+            <div class="pf-bar"><i style={`--w:${p.data.progress}%`}></i></div>
+          </div>))}
+        </div>}
+
+        {id === 'work' && <div class="pf-cards pf-two">{P.work.map((w) => (
+          <div class="pf-card"><span class="pf-status">{w.when}</span><h3><a href={w.url} target="_blank" rel="noopener">{w.title} ↗</a></h3><p>{w.text}</p><div class="pf-tags">{w.tags.map((t) => <span>#{t}</span>)}</div></div>))}
+        </div>}
+
+        {id === 'writing' && <>
+          <div class="pf-posts">{posts.slice(0, 6).map((p) => (
+            <a class="pf-post" href={p.url} target="_blank" rel="noopener"><span class="pf-date">{month(p.date)}</span><span><b>{p.title}</b><small>{[p.publication, `${p.minutes} min read`, ...p.tags].filter(Boolean).join(' · ')}</small></span><span class="pf-arrow" aria-hidden="true">↗</span></a>))}
+          </div>
+          {posts.length > 6 && <details class="pf-more"><summary>Show all {posts.length} posts</summary><div class="pf-posts">{posts.slice(6).map((p) => (
+            <a class="pf-post" href={p.url} target="_blank" rel="noopener"><span class="pf-date">{month(p.date)}</span><span><b>{p.title}</b><small>{[p.publication, `${p.minutes} min read`, ...p.tags].filter(Boolean).join(' · ')}</small></span><span class="pf-arrow" aria-hidden="true">↗</span></a>))}</div></details>}
+          <p class="pf-note"><a href={mediumProfile} target="_blank" rel="noopener">All posts on Medium →</a></p>
+        </>}
+
+        {id === 'experience' && <div class="pf-tl">{P.experience.map((e) => (
+          <div class={e.now ? 'now' : undefined}><h3>{e.title} <em>· {e.org}</em></h3><span class="pf-date">{e.when}</span>{e.text && <p>{e.text}</p>}</div>))}
+        </div>}
+
+        {id === 'skills' && <div class="pf-skills">{P.skills.map(([k, v]) => <div><span class="pf-date">{k}</span><div class="pf-chips">{v.map((s) => <span>{s}</span>)}</div></div>)}</div>}
+
+        {id === 'awards' && <div class="pf-rows">{P.awards.map((a) => <div><span class="pf-place">{a.place}</span><span>{a.text}</span></div>)}</div>}
+
+        {id === 'contact' && <>
+          <p class="pf-lead">Open to research collaborations and engineering conversations. Based in {P.location}.</p>
+          <div class="pf-contact">{contacts.map(([k, t, h]) => <a href={h} class={k === "email" ? "wide" : undefined}><small>{k}</small>{t}</a>)}</div>
+        </>}
+      </section>
+    ))}
+  </main>
+
+  <footer>
+    <div id="fp">Measuring this visit…</div>
+    <div>Rendering pauses when the tab is hidden and slows when idle. <b>Eco mode</b> stops the animation. Music streams from Audiomack only if you press play.</div>
+    <div>CO₂: {earthFacts.co2.source}, {earthFacts.co2.when} · Temperature: {earthFacts.temp.source}, {earthFacts.temp.when} · Imagery: NASA Blue Marble and Earth's City Lights. Map layers are derived from that imagery for illustration, not analysis.</div>
+  </footer>
+
+  <script type="application/json" id="space-data" set:html={JSON.stringify(spaceData)} />
+  <script src="../scripts/sections.js"></script>
+  <script src="../scripts/space.js"></script>
+</Base>

@@ -1,0 +1,142 @@
+[
+ {
+  "title": "Why does data persistence matter in Redis?",
+  "url": "https://medium.com/javarevisited/-a6746f1339e8",
+  "untitled": true,
+  "date": "2025-07-25",
+  "excerpt": "Redis is widely known as an in-memory data store that is fast, lightweight, and perfect for caching and real-time applications. But despite being memory-based, Redis also provides…",
+  "minutes": 3,
+  "tags": [
+   "cache",
+   "database",
+   "data persistence"
+  ],
+  "publication": "Javarevisited"
+ },
+ {
+  "title": "Why HashMap Allows null Keys but TreeMap Doesn’t - A Deep Dive Into Java Internals",
+  "url": "https://medium.com/javarevisited/why-hashmap-allows-null-keys-but-treemap-doesnt-a-deep-dive-into-java-internals-6356dbbbec01",
+  "untitled": false,
+  "date": "2025-07-17",
+  "excerpt": "If you’ve ever worked with Java Collections, you’ve probably used both HashMap and TreeMap. While they both implement the Map interface, they behave quite differently, especially…",
+  "minutes": 3,
+  "tags": [
+   "hashmap in java",
+   "java",
+   "treemap"
+  ],
+  "publication": "Javarevisited"
+ },
+ {
+  "title": "Deploying Spring Boot Application on AWS EC2 | GitHub Actions - CI/CD",
+  "url": "https://medium.com/javarevisited/deploying-spring-boot-application-on-aws-ec2-github-actions-ci-cd-27d8de67ee3c",
+  "untitled": false,
+  "date": "2025-04-25",
+  "excerpt": "Continuous deployment (CD) for your Spring Boot application can significantly streamline your development workflow. In this guide, you’ll learn how to deploy a Spring Boot app to…",
+  "minutes": 3,
+  "tags": [
+   "deployment pipelines",
+   "aws",
+   "aws ec2"
+  ],
+  "publication": "Javarevisited"
+ },
+ {
+  "title": "LeetCode: Removing Elements from an Array",
+  "url": "https://meheedihasaan.medium.com/leetcode-removing-elements-from-an-array-eb57f539bc58",
+  "untitled": false,
+  "date": "2024-05-25",
+  "excerpt": "In this article, we will tackle a common problem encountered in technical interviews: removing all occurrences of a specific value from an array. This problem not only tests your…",
+  "minutes": 3,
+  "tags": [
+   "leetcode easy",
+   "leetcode solution",
+   "java"
+  ],
+  "publication": null
+ },
+ {
+  "title": "LeetCode: Removing Duplicates from a Sorted Array in Java",
+  "url": "https://meheedihasaan.medium.com/removing-duplicates-from-a-sorted-array-in-java-4e98cb9892ff",
+  "untitled": false,
+  "date": "2024-05-25",
+  "excerpt": "One common problem encountered in technical interviews is removing duplicates from a sorted array. This problem tests your understanding of array manipulation, in-place…",
+  "minutes": 3,
+  "tags": [
+   "removing duplicates",
+   "leetcode solution",
+   "leetcode easy"
+  ],
+  "publication": null
+ },
+ {
+  "title": "LeetCode: Solving the Two Sum Problem: Brute Force and Hash Map Approaches",
+  "url": "https://meheedihasaan.medium.com/solving-the-two-sum-problem-brute-force-and-hash-map-approaches-5bc3b77cb5ba",
+  "untitled": false,
+  "date": "2024-05-24",
+  "excerpt": "The Two Sum problem is a common algorithmic problem which is asked in coding interviews and competitive programming. This article explores two solutions to this problem: the brute…",
+  "minutes": 3,
+  "tags": [
+   "problem solving",
+   "leetcode",
+   "hashmap"
+  ],
+  "publication": null
+ },
+ {
+  "title": "A Deep Dive Into Bit Manipulation-Part 1",
+  "url": "https://meheedihasaan.medium.com/a-deep-dive-into-bit-manipulation-part-1-bc817c27a4e5",
+  "untitled": false,
+  "date": "2023-10-14",
+  "excerpt": "Hello everyone. I hope you all are doing extremely well. Today I’m going to talk about Bit Manipulation in this article. What is Bit Manipulation? A bit is the smallest part of…",
+  "minutes": 7,
+  "tags": [
+   "bitwise operator",
+   "bit manipulation",
+   "bitwise operations"
+  ],
+  "publication": null
+ },
+ {
+  "title": "Why can’t the Java byte data type store 128?",
+  "url": "https://medium.com/javarevisited/why-cant-the-java-byte-data-type-store-128-a3654108ba16",
+  "untitled": false,
+  "date": "2023-08-19",
+  "excerpt": "Welcome to yet another short article. I hope you all are doing exceptionally well. In this article, I’m gonna talk about the byte data type in Java. The byte data type is a…",
+  "minutes": 3,
+  "tags": [
+   "java",
+   "data type in java",
+   "binary data"
+  ],
+  "publication": "Javarevisited"
+ },
+ {
+  "title": "Configure Environment-Specific Databases Using Spring Profiles",
+  "url": "https://meheedihasaan.medium.com/configure-environment-specific-database-using-spring-profiles-b8b01d2e39f4",
+  "untitled": false,
+  "date": "2023-04-23",
+  "excerpt": "Hello Everyone! In production, we generally use a remote database in Spring Boot Application. But the remote database performs slowly in the development environment. In this case,…",
+  "minutes": 2,
+  "tags": [
+   "spring profile",
+   "database",
+   "deployment"
+  ],
+  "publication": null
+ },
+ {
+  "title": "Deploy Your Spring Boot Application To Railway",
+  "url": "https://meheedihasaan.medium.com/deploy-your-spring-boot-applications-to-railway-app-a2008b6d968c",
+  "untitled": false,
+  "date": "2023-04-16",
+  "excerpt": "Introduction There are various platforms where we can deploy our Spring Boot Applications. But most of these platform requires credit/debit card information. So, those who have no…",
+  "minutes": 2,
+  "tags": [
+   "spring boot",
+   "railways",
+   "deployment"
+  ],
+  "publication": null
+ }
+]
